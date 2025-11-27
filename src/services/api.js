@@ -14,7 +14,11 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      window.location.href = '/login';
+      // Only redirect if not already on login/register/profile/bookings page to prevent infinite loops
+      const path = window.location.pathname;
+      if (!path.includes('/login') && !path.includes('/register') && !path.includes('/profile') && !path.includes('/bookings')) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

@@ -32,10 +32,10 @@ function App() {
       }
     };
     fetchUser();
-  }, []);
+  }, []); // Empty dependency array - only run once on mount
 
   if (loading) {
-    return <div className="container">Loading...</div>;
+    return <div className="container loading">Loading...</div>;
   }
 
   return (

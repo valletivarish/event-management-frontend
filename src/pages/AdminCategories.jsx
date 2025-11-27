@@ -101,7 +101,7 @@ function AdminCategories() {
       )}
 
       {loading ? (
-        <div>Loading categories...</div>
+        <div className="loading">Loading categories...</div>
       ) : (
         <div>
           {categories.map((category) => (

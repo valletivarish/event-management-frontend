@@ -106,7 +106,7 @@ function AdminEvents() {
       ticketTypes: event.ticketTypes || [{ type_name: 'standard', price: '0', quantity: '' }],
       image_url: event.image_url || ''
     });
-    setImagePreview(event.image_url ? `http://localhost:5000${event.image_url}` : null);
+    setImagePreview(event.image_url ? `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${event.image_url}` : null);
     setShowForm(true);
   };
 
@@ -281,7 +281,7 @@ function AdminEvents() {
       )}
 
       {loading ? (
-        <div>Loading events...</div>
+        <div className="loading">Loading events...</div>
       ) : (
         <div>
           {events.map((event) => (

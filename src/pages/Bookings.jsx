@@ -14,9 +14,11 @@ function Bookings({ user }) {
     setLoading(true);
     try {
       const data = await getBookings();
-      setBookings(data);
+      setBookings(data || []);
     } catch (error) {
       console.error('Failed to load bookings:', error);
+      // Don't redirect, just show empty state
+      setBookings([]);
     } finally {
       setLoading(false);
     }
@@ -41,14 +43,14 @@ function Bookings({ user }) {
   };
 
   if (loading) {
-    return <div>Loading bookings...</div>;
+    return <div className="loading">Loading bookings...</div>;
   }
 
   return (
     <div>
       <h1>My Bookings</h1>
       {bookings.length === 0 ? (
-        <div>No bookings found</div>
+        <div className="empty-state">No bookings found</div>
       ) : (
         <div>
           {bookings.map((booking) => (

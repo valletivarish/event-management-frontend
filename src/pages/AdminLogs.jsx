@@ -16,10 +16,12 @@ function AdminLogs() {
     setLoading(true);
     try {
       const data = await getLogs(limit, offset);
-      setLogs(data.logs);
-      setTotal(data.total);
+      setLogs(data.logs || []);
+      setTotal(data.total || 0);
     } catch (error) {
       console.error('Failed to load logs:', error);
+      setLogs([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
@@ -29,15 +31,24 @@ function AdminLogs() {
     return new Date(dateString).toLocaleString();
   };
 
+  const formatIpAddress = (ip) => {
+    if (!ip) return 'N/A';
+    // Convert IPv6 loopback to localhost for better readability
+    if (ip === '::1' || ip === '127.0.0.1' || ip === '::ffff:127.0.0.1') {
+      return 'localhost';
+    }
+    return ip;
+  };
+
   return (
     <div>
       <h1>Activity Logs</h1>
       <p>Total logs: {total}</p>
 
       {loading ? (
-        <div>Loading logs...</div>
+        <div className="loading">Loading logs...</div>
       ) : logs.length === 0 ? (
-        <div>No logs found</div>
+        <div className="empty-state">No logs found</div>
       ) : (
         <>
           <div>
@@ -47,7 +58,7 @@ function AdminLogs() {
                 <p><strong>User:</strong> {log.user_name || 'System'} ({log.user_email || 'N/A'})</p>
                 {log.resource_type && <p><strong>Resource:</strong> {log.resource_type} (ID: {log.resource_id})</p>}
                 {log.details && <p><strong>Details:</strong> {log.details}</p>}
-                {log.ip_address && <p><strong>IP:</strong> {log.ip_address}</p>}
+                {log.ip_address && <p><strong>IP:</strong> {formatIpAddress(log.ip_address)}</p>}
                 <p><strong>Time:</strong> {formatDate(log.created_at)}</p>
               </div>
             ))}

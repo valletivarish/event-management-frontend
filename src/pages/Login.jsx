@@ -25,17 +25,21 @@ function Login({ setUser }) {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto' }}>
-      <div className="card">
-        <h2>Login</h2>
-        {error && <div style={{ color: 'red', marginBottom: '15px' }}>{error}</div>}
-        <form onSubmit={handleSubmit}>
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="auth-header">
+          <h2>Welcome Back</h2>
+          <p>Sign in to your account</p>
+        </div>
+        {error && <div className="error-message">{error}</div>}
+        <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
             <label>Email</label>
             <input
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              placeholder="Enter your email"
               required
             />
           </div>
@@ -45,13 +49,17 @@ function Login({ setUser }) {
               type="password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              placeholder="Enter your password"
               required
             />
           </div>
-          <button type="submit" className="btn btn-primary" disabled={loading}>
+          <button type="submit" className="btn btn-primary auth-submit-btn" disabled={loading}>
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
+        <div className="auth-footer">
+          <p>Don't have an account? <a href="/register">Register here</a></p>
+        </div>
       </div>
     </div>
   );

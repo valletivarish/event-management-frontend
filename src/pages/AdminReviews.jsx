@@ -50,14 +50,14 @@ function AdminReviews() {
   };
 
   if (loading) {
-    return <div>Loading reviews...</div>;
+    return <div className="loading">Loading reviews...</div>;
   }
 
   return (
     <div>
       <h1>Moderate Reviews</h1>
       {reviews.length === 0 ? (
-        <div>No pending reviews</div>
+        <div className="empty-state">No pending reviews</div>
       ) : (
         <div>
           {reviews.map((review) => (

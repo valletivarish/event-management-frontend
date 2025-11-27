@@ -1,8 +1,9 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { logout } from '../services/authService';
 
 function Navbar({ user, setUser }) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async () => {
     await logout();
@@ -10,37 +11,91 @@ function Navbar({ user, setUser }) {
     navigate('/login');
   };
 
+  const isActive = (path) => {
+    return location.pathname === path || location.pathname.startsWith(path + '/');
+  };
+
   return (
-    <nav style={{ background: '#333', color: 'white', padding: '15px 0', marginBottom: '20px' }}>
-      <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <Link to="/events" style={{ color: 'white', textDecoration: 'none', fontSize: '20px', fontWeight: 'bold' }}>
+    <nav className="navbar">
+      <div className="container nav-container">
+        <div className="nav-brand-container">
+          <Link to="/events" className="nav-brand">
             Event Management
           </Link>
         </div>
-        <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-          <Link to="/events" style={{ color: 'white', textDecoration: 'none' }}>Events</Link>
+        <div className="nav-links">
+          <Link 
+            to="/events" 
+            className={`nav-link ${isActive('/events') && !location.pathname.startsWith('/admin') ? 'active' : ''}`}
+          >
+            Events
+          </Link>
           {user ? (
             <>
               {user.role === 'admin' && (
-                <>
-                  <Link to="/admin/events" style={{ color: 'white', textDecoration: 'none' }}>Manage Events</Link>
-                  <Link to="/admin/categories" style={{ color: 'white', textDecoration: 'none' }}>Categories</Link>
-                  <Link to="/admin/bookings" style={{ color: 'white', textDecoration: 'none' }}>All Bookings</Link>
-                  <Link to="/admin/reviews" style={{ color: 'white', textDecoration: 'none' }}>Reviews</Link>
-                  <Link to="/admin/logs" style={{ color: 'white', textDecoration: 'none' }}>Logs</Link>
-                </>
+                <div className="nav-admin-section">
+                  <Link 
+                    to="/admin/events" 
+                    className={`nav-link ${isActive('/admin/events') ? 'active' : ''}`}
+                  >
+                    Manage Events
+                  </Link>
+                  <Link 
+                    to="/admin/categories" 
+                    className={`nav-link ${isActive('/admin/categories') ? 'active' : ''}`}
+                  >
+                    Categories
+                  </Link>
+                  <Link 
+                    to="/admin/bookings" 
+                    className={`nav-link ${isActive('/admin/bookings') ? 'active' : ''}`}
+                  >
+                    All Bookings
+                  </Link>
+                  <Link 
+                    to="/admin/reviews" 
+                    className={`nav-link ${isActive('/admin/reviews') ? 'active' : ''}`}
+                  >
+                    Reviews
+                  </Link>
+                  <Link 
+                    to="/admin/logs" 
+                    className={`nav-link ${isActive('/admin/logs') ? 'active' : ''}`}
+                  >
+                    Logs
+                  </Link>
+                </div>
               )}
-              <Link to="/bookings" style={{ color: 'white', textDecoration: 'none' }}>My Bookings</Link>
-              <Link to="/profile" style={{ color: 'white', textDecoration: 'none' }}>Profile</Link>
-              <button onClick={handleLogout} className="btn btn-secondary" style={{ padding: '5px 15px' }}>
+              <Link 
+                to="/bookings" 
+                className={`nav-link ${isActive('/bookings') ? 'active' : ''}`}
+              >
+                My Bookings
+              </Link>
+              <Link 
+                to="/profile" 
+                className={`nav-link ${isActive('/profile') ? 'active' : ''}`}
+              >
+                Profile
+              </Link>
+              <button onClick={handleLogout} className="nav-logout-btn">
                 Logout
               </button>
             </>
           ) : (
             <>
-              <Link to="/login" style={{ color: 'white', textDecoration: 'none' }}>Login</Link>
-              <Link to="/register" style={{ color: 'white', textDecoration: 'none' }}>Register</Link>
+              <Link 
+                to="/login" 
+                className={`nav-link ${isActive('/login') ? 'active' : ''}`}
+              >
+                Login
+              </Link>
+              <Link 
+                to="/register" 
+                className={`nav-link nav-link-primary ${isActive('/register') ? 'active' : ''}`}
+              >
+                Register
+              </Link>
             </>
           )}
         </div>

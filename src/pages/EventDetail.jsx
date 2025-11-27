@@ -87,11 +87,11 @@ function EventDetail({ user }) {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="loading">Loading...</div>;
   }
 
   if (!event) {
-    return <div>Event not found</div>;
+    return <div className="empty-state">Event not found</div>;
   }
 
   const formatDate = (dateString) => {
@@ -107,7 +107,7 @@ function EventDetail({ user }) {
       <div className="card" style={{ marginBottom: '20px' }}>
         {event.image_url && (
           <img
-            src={`http://localhost:5000${event.image_url}`}
+            src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${event.image_url}`}
             alt={event.title}
             style={{ width: '100%', maxHeight: '400px', objectFit: 'cover', borderRadius: '4px', marginBottom: '20px' }}
           />
@@ -124,7 +124,7 @@ function EventDetail({ user }) {
       {user && event.available_seats > 0 && (
         <div className="card" style={{ marginBottom: '20px' }}>
           <h2>Book Event</h2>
-          {error && <div style={{ color: 'red', marginBottom: '15px' }}>{error}</div>}
+          {error && <div className="error-message">{error}</div>}
           <form onSubmit={handleBooking}>
             {event.ticketTypes && event.ticketTypes.length > 0 ? (
               <div className="form-group">

@@ -19,6 +19,10 @@ export const getCurrentUser = async () => {
     const response = await api.get('/api/users/profile');
     return response.data;
   } catch (error) {
+    // Don't throw error for 401 - just return null to indicate no user
+    if (error.response?.status === 401) {
+      return null;
+    }
     throw error;
   }
 };

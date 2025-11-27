@@ -1,11 +1,44 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { updateProfile, changePassword } from '../services/userService';
+import { getCurrentUser } from '../services/authService';
 
 function Profile({ user, setUser }) {
-  const [profileData, setProfileData] = useState({ name: user?.name || '', email: user?.email || '' });
+  const [profileData, setProfileData] = useState({ name: '', email: '' });
   const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [userDetails, setUserDetails] = useState(null);
+
+  useEffect(() => {
+    // Use user from props if available
+    if (user && user.name && user.email) {
+      setProfileData({ name: user.name, email: user.email });
+      setUserDetails(user);
+      setLoading(false);
+      return;
+    }
+    
+    // Otherwise fetch user data
+    const loadProfile = async () => {
+      try {
+        const currentUser = await getCurrentUser();
+        if (currentUser) {
+          setProfileData({ name: currentUser.name || '', email: currentUser.email || '' });
+          setUserDetails(currentUser);
+          if (setUser) {
+            setUser(currentUser);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load profile:', error);
+        // Don't redirect, just show empty form
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProfile();
+  }, []);
 
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
@@ -15,7 +48,9 @@ function Profile({ user, setUser }) {
     try {
       await updateProfile(profileData);
       setMessage('Profile updated successfully');
-      setUser({ ...user, ...profileData });
+      const updatedUser = { ...user, ...profileData };
+      setUser(updatedUser);
+      setUserDetails(updatedUser);
     } catch (err) {
       setError(err.response?.data?.error || 'Update failed');
     }
@@ -43,13 +78,65 @@ function Profile({ user, setUser }) {
     }
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleString();
+  };
+
+  if (loading) {
+    return <div className="loading">Loading profile...</div>;
+  }
+
   return (
     <div>
       <h1>Profile</h1>
+      
+      {/* User Details Card */}
+      <div className="card" style={{ marginBottom: '20px' }}>
+        <h2>Account Details</h2>
+        {userDetails && (
+          <div style={{ marginBottom: '15px' }}>
+            <div style={{ marginBottom: '10px' }}>
+              <strong>User ID:</strong> {userDetails.id}
+            </div>
+            <div style={{ marginBottom: '10px' }}>
+              <strong>Role:</strong>{' '}
+              <span style={{
+                display: 'inline-block',
+                padding: '4px 12px',
+                borderRadius: '4px',
+                backgroundColor: userDetails.role === 'admin' ? '#e3f2fd' : '#f5f5f5',
+                color: userDetails.role === 'admin' ? '#1976d2' : '#333',
+                fontWeight: 'bold',
+                textTransform: 'uppercase',
+                fontSize: '0.85em'
+              }}>
+                {userDetails.role || 'user'}
+              </span>
+            </div>
+            <div style={{ marginBottom: '10px' }}>
+              <strong>Account Created:</strong> {formatDate(userDetails.created_at)}
+            </div>
+            {userDetails.role === 'admin' && (
+              <div style={{
+                marginTop: '15px',
+                padding: '12px',
+                backgroundColor: '#fff3cd',
+                border: '1px solid #ffc107',
+                borderRadius: '4px',
+                color: '#856404'
+              }}>
+                <strong>Admin Access:</strong> You have administrative privileges to manage events, categories, bookings, reviews, and view activity logs.
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       <div className="card" style={{ marginBottom: '20px' }}>
         <h2>Update Profile</h2>
-        {message && <div style={{ color: 'green', marginBottom: '15px' }}>{message}</div>}
-        {error && <div style={{ color: 'red', marginBottom: '15px' }}>{error}</div>}
+        {message && <div className="success-message">{message}</div>}
+        {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleProfileUpdate}>
           <div className="form-group">
             <label>Name</label>
@@ -75,8 +162,8 @@ function Profile({ user, setUser }) {
 
       <div className="card">
         <h2>Change Password</h2>
-        {message && <div style={{ color: 'green', marginBottom: '15px' }}>{message}</div>}
-        {error && <div style={{ color: 'red', marginBottom: '15px' }}>{error}</div>}
+        {message && <div className="success-message">{message}</div>}
+        {error && <div className="error-message">{error}</div>}
         <form onSubmit={handlePasswordChange}>
           <div className="form-group">
             <label>Current Password</label>

@@ -26,17 +26,21 @@ function Register({ setUser }) {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto' }}>
-      <div className="card">
-        <h2>Register</h2>
-        {error && <div style={{ color: 'red', marginBottom: '15px' }}>{error}</div>}
-        <form onSubmit={handleSubmit}>
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="auth-header">
+          <h2>Create Account</h2>
+          <p>Sign up to get started</p>
+        </div>
+        {error && <div className="error-message">{error}</div>}
+        <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
             <label>Name</label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="Enter your full name"
               required
             />
           </div>
@@ -46,6 +50,7 @@ function Register({ setUser }) {
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              placeholder="Enter your email"
               required
             />
           </div>
@@ -55,14 +60,18 @@ function Register({ setUser }) {
               type="password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              placeholder="Enter your password (min. 6 characters)"
               required
               minLength={6}
             />
           </div>
-          <button type="submit" className="btn btn-primary" disabled={loading}>
+          <button type="submit" className="btn btn-primary auth-submit-btn" disabled={loading}>
             {loading ? 'Registering...' : 'Register'}
           </button>
         </form>
+        <div className="auth-footer">
+          <p>Already have an account? <a href="/login">Login here</a></p>
+        </div>
       </div>
     </div>
   );

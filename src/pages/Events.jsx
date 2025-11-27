@@ -76,16 +76,16 @@ function Events() {
       </div>
 
       {loading ? (
-        <div>Loading events...</div>
+        <div className="loading">Loading events...</div>
       ) : events.length === 0 ? (
-        <div>No events found</div>
+        <div className="empty-state">No events found</div>
       ) : (
         <div className="grid">
           {events.map((event) => (
             <div key={event.id} className="card">
               {event.image_url && (
                 <img
-                  src={`http://localhost:5000${event.image_url}`}
+                  src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${event.image_url}`}
                   alt={event.title}
                   style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '4px', marginBottom: '15px' }}
                 />

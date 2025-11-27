@@ -26,14 +26,14 @@ function AdminBookings() {
   };
 
   if (loading) {
-    return <div>Loading bookings...</div>;
+    return <div className="loading">Loading bookings...</div>;
   }
 
   return (
     <div>
       <h1>All Bookings</h1>
       {bookings.length === 0 ? (
-        <div>No bookings found</div>
+        <div className="empty-state">No bookings found</div>
       ) : (
         <div>
           {bookings.map((booking) => (
