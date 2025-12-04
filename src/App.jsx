@@ -34,6 +34,32 @@ function App() {
     fetchUser();
   }, []); // Empty dependency array - only run once on mount
 
+  useEffect(() => {
+    // Prevent mouse wheel from changing number input values
+    const handleWheel = (e) => {
+      if (e.target.type === 'number' && document.activeElement === e.target) {
+        e.preventDefault();
+      }
+    };
+
+    // Prevent arrow keys from changing number input values
+    const handleKeyDown = (e) => {
+      if (e.target.type === 'number' && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+        e.preventDefault();
+      }
+    };
+
+    // Add event listeners
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('keydown', handleKeyDown);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   if (loading) {
     return <div className="container loading">Loading...</div>;
   }

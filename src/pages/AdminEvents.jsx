@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getEvents, createEvent, updateEvent, deleteEvent, uploadImage } from '../services/eventService';
+import { getEvents, getEventById, createEvent, updateEvent, deleteEvent, uploadImage } from '../services/eventService';
 import { getCategories } from '../services/categoryService';
 
 function AdminEvents() {
@@ -60,6 +60,19 @@ function AdminEvents() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate ticket quantities don't exceed capacity
+    const capacity = parseInt(formData.capacity) || 0;
+    const totalTicketQuantity = formData.ticketTypes.reduce((sum, tt) => {
+      const quantity = parseInt(tt.quantity) || 0;
+      return sum + quantity;
+    }, 0);
+    
+    if (totalTicketQuantity > capacity) {
+      alert(`Total ticket quantity (${totalTicketQuantity}) cannot exceed event capacity (${capacity})`);
+      return;
+    }
+    
     try {
       let imageUrl = formData.image_url || '';
       if (formData.image) {
@@ -94,20 +107,33 @@ function AdminEvents() {
     }
   };
 
-  const handleEdit = (event) => {
-    setEditingEvent(event);
-    setFormData({
-      title: event.title,
-      description: event.description || '',
-      category_id: event.category_id || '',
-      date: event.date ? event.date.slice(0, 16) : '',
-      location: event.location,
-      capacity: event.capacity,
-      ticketTypes: event.ticketTypes || [{ type_name: 'standard', price: '0', quantity: '' }],
-      image_url: event.image_url || ''
-    });
-    setImagePreview(event.image_url ? `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${event.image_url}` : null);
-    setShowForm(true);
+  const handleEdit = async (event) => {
+    try {
+      // Fetch full event details including ticketTypes
+      const fullEvent = await getEventById(event.id);
+      setEditingEvent(fullEvent);
+      setFormData({
+        title: fullEvent.title,
+        description: fullEvent.description || '',
+        category_id: fullEvent.category_id || '',
+        date: fullEvent.date ? fullEvent.date.slice(0, 16) : '',
+        location: fullEvent.location,
+        capacity: fullEvent.capacity,
+        ticketTypes: fullEvent.ticketTypes && fullEvent.ticketTypes.length > 0
+          ? fullEvent.ticketTypes.map(tt => ({
+              type_name: tt.type_name || '',
+              price: tt.price?.toString() || '0',
+              quantity: tt.quantity?.toString() || ''
+            }))
+          : [{ type_name: 'standard', price: '0', quantity: '' }],
+        image_url: fullEvent.image_url || ''
+      });
+      setImagePreview(fullEvent.image_url ? `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${fullEvent.image_url}` : null);
+      setShowForm(true);
+    } catch (error) {
+      console.error('Failed to load event details:', error);
+      alert('Failed to load event details');
+    }
   };
 
   const handleDelete = async (id) => {
@@ -240,35 +266,63 @@ function AdminEvents() {
             </div>
             <div className="form-group">
               <label>Ticket Types</label>
-              {formData.ticketTypes.map((tt, index) => (
-                <div key={index} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                  <input
-                    type="text"
-                    placeholder="Type name"
-                    value={tt.type_name}
-                    onChange={(e) => updateTicketType(index, 'type_name', e.target.value)}
-                    required
-                  />
-                  <input
-                    type="number"
-                    step="0.01"
-                    placeholder="Price"
-                    value={tt.price}
-                    onChange={(e) => updateTicketType(index, 'price', e.target.value)}
-                    required
-                  />
-                  <input
-                    type="number"
-                    placeholder="Quantity"
-                    value={tt.quantity}
-                    onChange={(e) => updateTicketType(index, 'quantity', e.target.value)}
-                    required
-                  />
-                  {formData.ticketTypes.length > 1 && (
-                    <button type="button" onClick={() => removeTicketType(index)} className="btn btn-danger">
-                      Remove
-                    </button>
+              {formData.capacity && (
+                <div className={`capacity-summary ${formData.ticketTypes.reduce((sum, tt) => sum + (parseInt(tt.quantity) || 0), 0) > parseInt(formData.capacity) ? 'capacity-exceeded' : ''}`}>
+                  <strong>Event Capacity:</strong> {formData.capacity} | 
+                  <strong> Total Ticket Quantity:</strong> {formData.ticketTypes.reduce((sum, tt) => sum + (parseInt(tt.quantity) || 0), 0)}
+                  {formData.ticketTypes.reduce((sum, tt) => sum + (parseInt(tt.quantity) || 0), 0) > parseInt(formData.capacity) && (
+                    <span className="capacity-warning">Exceeds capacity!</span>
                   )}
+                </div>
+              )}
+              {formData.ticketTypes.map((tt, index) => (
+                <div key={index} style={{ marginBottom: '15px', padding: '15px', border: '1px solid #ddd', borderRadius: '4px' }}>
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+                    <div style={{ flex: '1', minWidth: '150px' }}>
+                      <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Type Name</label>
+                      <input
+                        type="text"
+                        placeholder="e.g., Standard, VIP, Early Bird"
+                        value={tt.type_name}
+                        onChange={(e) => updateTicketType(index, 'type_name', e.target.value)}
+                        required
+                        style={{ width: '100%' }}
+                      />
+                    </div>
+                    <div style={{ flex: '1', minWidth: '120px' }}>
+                      <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Price ($)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="0.00"
+                        value={tt.price}
+                        onChange={(e) => updateTicketType(index, 'price', e.target.value)}
+                        required
+                        style={{ width: '100%' }}
+                      />
+                    </div>
+                    <div style={{ flex: '1', minWidth: '120px' }}>
+                      <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Quantity</label>
+                      <input
+                        type="number"
+                        min="1"
+                        placeholder="Number of tickets"
+                        value={tt.quantity}
+                        onChange={(e) => updateTicketType(index, 'quantity', e.target.value)}
+                        required
+                        style={{ width: '100%' }}
+                      />
+                    </div>
+                    {formData.ticketTypes.length > 1 && (
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '5px', opacity: 0 }}>Remove</label>
+                        <button type="button" onClick={() => removeTicketType(index)} className="btn btn-danger">
+                          Remove
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
               <button type="button" onClick={addTicketType} className="btn btn-secondary" style={{ marginTop: '10px' }}>
