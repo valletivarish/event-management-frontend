@@ -165,8 +165,10 @@ The frontend implements several security measures:
 
 ### Default Test Accounts
 
-- **Admin**: `admin@ems.com` / `password123`
-- **User**: `user@ems.com` / `password123`
+- **Admin**: `admin@ems.com` / `Admin@2024`
+- **User**: `user@ems.com` / `User@2024`
+
+**Note:** These passwords meet the strong password requirements (8+ characters, uppercase, lowercase, number, and special character).
 
 ## Pages and Routes
 
