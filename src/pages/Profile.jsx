@@ -38,6 +38,7 @@ function Profile({ user, setUser }) {
       }
     };
     loadProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleProfileUpdate = async (e) => {

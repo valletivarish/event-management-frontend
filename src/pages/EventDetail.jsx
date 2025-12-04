@@ -17,6 +17,7 @@ function EventDetail({ user }) {
   useEffect(() => {
     loadEvent();
     loadReviews();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const loadEvent = async () => {

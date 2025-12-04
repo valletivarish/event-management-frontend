@@ -25,7 +25,7 @@ function App() {
       try {
         const currentUser = await getCurrentUser();
         setUser(currentUser);
-      } catch (error) {
+      } catch (_error) {
         setUser(null);
       } finally {
         setLoading(false);

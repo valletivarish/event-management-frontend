@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { cancelBooking } from '../services/bookingService';
 import { getBookings } from '../services/bookingService';
 
-function Bookings({ user }) {
+function Bookings({ user: _user }) {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 

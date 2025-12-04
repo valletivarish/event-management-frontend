@@ -58,7 +58,7 @@ function Login({ setUser }) {
           </button>
         </form>
         <div className="auth-footer">
-          <p>Don't have an account? <a href="/register">Register here</a></p>
+          <p>Don&apos;t have an account? <a href="/register">Register here</a></p>
         </div>
       </div>
     </div>

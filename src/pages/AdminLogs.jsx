@@ -10,6 +10,7 @@ function AdminLogs() {
 
   useEffect(() => {
     loadLogs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [offset]);
 
   const loadLogs = async () => {
